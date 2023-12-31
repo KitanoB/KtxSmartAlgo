@@ -18,8 +18,8 @@ import org.jetbrains.exposed.sql.update
 data class ExposedAIAdvice(
     val id: Int? = null,
     val promptId: Int,
-    val adviceText: String,
-    val receivedAt: Long = System.currentTimeMillis()
+    var adviceText: String,
+    val receivedAt: Long = System.currentTimeMillis(),
 )
 
 class AIAdviceService(private val database: Database) {
@@ -40,6 +40,7 @@ class AIAdviceService(private val database: Database) {
 
     private suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
+
     suspend fun create(advice: ExposedAIAdvice): Int = dbQuery {
         AIAdvices.insert {
             it[promptId] = advice.promptId
@@ -107,7 +108,6 @@ class AIAdviceService(private val database: Database) {
             }
         }
     }
-
 
 
 }

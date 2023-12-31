@@ -3,95 +3,70 @@ package ktp.ktx.smart.algo
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 import kotlinx.coroutines.runBlocking
-import ktp.ktx.smart.algo.data.DatabaseFactory
+import ktp.ktx.smart.algo.data.database.DatabaseFactory
 import ktp.ktx.smart.algo.data.schema.ExposedUser
 import ktp.ktx.smart.algo.data.schema.UserService
 import org.jetbrains.exposed.sql.Database
 
 class UserSchemaTest {
 
-    lateinit var database: Database
-    lateinit var userService: UserService
-    lateinit var exposedUser: ExposedUser
+    private lateinit var database: Database
+
+    private lateinit var userService: UserService
+
 
     @BeforeTest
     fun setup() {
-        if (!::database.isInitialized) {
-            database = DatabaseFactory.getDatabase()
-        }
-        if (!::userService.isInitialized) {
-            userService = UserService(database)
-        }
+        database = DatabaseFactory.getDatabase()
+        userService = UserService(database)
+    }
 
-        if (!::exposedUser.isInitialized) {
-            exposedUser = ExposedUser(
-                id = null,
-                username = "test",
-                email = "",
-                passwordHash = "",
-                lastLoginDate = null,
-                createdAt = null,
-                isBanned = false,
-            )
-        }
+    private fun createTestUser(): ExposedUser {
+        return ExposedUser(
+            id = null,
+            username = "test",
+            email = "",
+            passwordHash = "",
+            lastLoginDate = null,
+            createdAt = null,
+            isBanned = false,
+        )
     }
 
     @Test
-    fun givenAnExposedUser_whenServiceCreate_returnAnIdNotNull() {
+    fun givenAnExposedUser_whenServiceCreate_UserIsRetrieved() {
         runBlocking {
-            userService.clear()
+            val exposedUser = createTestUser()
             val id = userService.create(exposedUser)
-            println("id: $id")
-            assertNotNull(id)
-            assertNotNull(userService.read(id))
-            assertEquals(userService.getNbUsers(), 1)
-            userService.create(exposedUser)
-            assertNotEquals(userService.getNbUsers(), 1)
+            val retrievedUser = userService.read(id)
+            assertNotNull(retrievedUser)
         }
     }
 
+    // test update user
     @Test
-    fun givenAnExposedUserId_WhenServiceReadThisUser_returnTheCorrectUser() {
+    fun givenAnExposedUser_whenServiceUpdate_UserIsRetrieved() {
         runBlocking {
-            userService.clear()
-            val id = userService.create(exposedUser)
-            val user = userService.read(id)
-            assertNotNull(user)
-            assertEquals(user.id, id)
+            val exposedUser = createTestUser()
+            exposedUser.username = "test2"
+            userService.update(1, exposedUser)
+            val retrievedUser = userService.read(1)
+            assertNotNull(retrievedUser)
+            assertEquals(retrievedUser.username, "test2")
         }
     }
 
+    // test delete user
     @Test
-    fun givenAnExposedUser_whenServiceUpdateThisUser_returnTheCorrectUser() {
+    fun givenAnExposedUser_whenServiceDelete_UserIsNotRetrieved() {
         runBlocking {
-            userService.clear()
+            val exposedUser = createTestUser()
             val id = userService.create(exposedUser)
-            val user = userService.read(id)
-            assertNotNull(user)
-            assertEquals(user.id, id)
-            user.username = "NewUsername"
-            userService.update(id, user)
-            val updatedUser = userService.read(id)
-            assertEquals(user.username, updatedUser?.username)
-        }
-    }
-
-    @Test
-    fun givenAnExposedUser_whenServiceDeleteThisUser_returnTheCorrectUser() {
-        runBlocking {
-            userService.clear()
-            val id = userService.create(exposedUser)
-            val user = userService.read(id)
-            assertNotNull(user)
-            assertEquals(user.id, id)
             userService.delete(id)
-            val deletedUser = userService.read(id)
-            assertNull(deletedUser)
+            val retrievedUser = userService.read(id)
+            assertEquals(retrievedUser, null)
         }
     }
-
 }

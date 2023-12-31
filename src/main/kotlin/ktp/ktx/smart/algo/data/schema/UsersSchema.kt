@@ -2,10 +2,18 @@ package ktp.ktx.smart.algo.data.schema
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.deleteAll
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 
 @Serializable
 data class ExposedUser(
@@ -66,10 +74,11 @@ class UserService(private val database: Database) {
                 }.singleOrNull()
         }
     }
+
     suspend fun getNbUsers(): Long {
-       return dbQuery {
-                Users.selectAll().count()
-            }
+        return dbQuery {
+            Users.selectAll().count()
+        }
     }
 
     suspend fun update(id: Int, user: ExposedUser) {

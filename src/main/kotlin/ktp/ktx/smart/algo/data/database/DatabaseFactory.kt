@@ -1,14 +1,14 @@
-package ktp.ktx.smart.algo.data
+package ktp.ktx.smart.algo.data.database
 
 import ktp.ktx.smart.algo.data.schema.AIAdviceService
 import ktp.ktx.smart.algo.data.schema.AIPromptService
 import ktp.ktx.smart.algo.data.schema.ChallengeService
 import ktp.ktx.smart.algo.data.schema.SubmissionService
 import ktp.ktx.smart.algo.data.schema.UserService
+import org.h2.tools.Server
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils.create
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.Database
-import org.h2.tools.Server
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -62,11 +62,11 @@ object DatabaseFactory {
     private fun initializeSchema() {
         try {
             transaction(databaseInstance) {
-                    create(UserService.Users)
-                    create(AIAdviceService.AIAdvices)
-                    create(AIPromptService.AIPromptTable)
-                    create(ChallengeService.Challenges)
-                    create(SubmissionService.Submissions)
+                create(UserService.Users)
+                create(AIAdviceService.AIAdvices)
+                create(AIPromptService.AIPromptTable)
+                create(ChallengeService.Challenges)
+                create(SubmissionService.Submissions)
 
             }
             logger.info("Database schema initialized")

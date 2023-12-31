@@ -18,7 +18,7 @@ data class ExposedAIPrompt(
     val userId: Int,
     val submissionId: Int,
     val promptText: String,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
 )
 
 class AIPromptService(private val database: Database) {

@@ -3,26 +3,34 @@ package ktp.ktx.smart.algo.data.schema
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.deleteAll
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
+
 @Serializable
 data class ExposedSubmission(
     val id: Int? = null, // Nullable for new submissions
     val userId: Int? = null, // TODO: Remove nullable once we have user auth
     val challengeId: Int,
     val testName: String,
-    val testResult: Boolean,
-    val numberOfSubmissions: Int,
-    val temporalComplexity: String,
-    val spatialComplexity: String,
-    val problemUnderstanding: String,
-    val resolutionStrategy: String,
-    val confidenceLevel: Int,
-    val learnings: String,
+    var testResult: Boolean,
+    var numberOfSubmissions: Int,
+    var temporalComplexity: String,
+    var spatialComplexity: String,
+    var problemUnderstanding: String,
+    var resolutionStrategy: String,
+    var confidenceLevel: Int,
+    var learnings: String,
     val startTime: Long,
-    val endTime: Long
+    val endTime: Long,
 )
 
 class SubmissionService(private val database: Database) {
@@ -71,53 +79,61 @@ class SubmissionService(private val database: Database) {
             it[endTime] = submission.endTime
         }[Submissions.id]
     }
-        suspend fun read(id: Int): ExposedSubmission? {
-            return dbQuery {
-                Submissions.select { Submissions.id eq id }
-                    .map {
-                        ExposedSubmission(
-                            it[Submissions.id],
-                            it[Submissions.userId],
-                            it[Submissions.challengeId],
-                            it[Submissions.testName],
-                            it[Submissions.testResult],
-                            it[Submissions.numberOfSubmissions],
-                            it[Submissions.temporalComplexity],
-                            it[Submissions.spatialComplexity],
-                            it[Submissions.problemUnderstanding],
-                            it[Submissions.resolutionStrategy],
-                            it[Submissions.confidenceLevel],
-                            it[Submissions.learnings],
-                            it[Submissions.startTime],
-                            it[Submissions.endTime]
-                        )
-                    }.singleOrNull()
+
+    suspend fun read(id: Int): ExposedSubmission? {
+        return dbQuery {
+            Submissions.select { Submissions.id eq id }
+                .map {
+                    ExposedSubmission(
+                        it[Submissions.id],
+                        it[Submissions.userId],
+                        it[Submissions.challengeId],
+                        it[Submissions.testName],
+                        it[Submissions.testResult],
+                        it[Submissions.numberOfSubmissions],
+                        it[Submissions.temporalComplexity],
+                        it[Submissions.spatialComplexity],
+                        it[Submissions.problemUnderstanding],
+                        it[Submissions.resolutionStrategy],
+                        it[Submissions.confidenceLevel],
+                        it[Submissions.learnings],
+                        it[Submissions.startTime],
+                        it[Submissions.endTime]
+                    )
+                }.singleOrNull()
+        }
+    }
+
+    suspend fun update(id: Int, submission: ExposedSubmission) {
+        dbQuery {
+            Submissions.update({ Submissions.id eq id }) {
+                it[userId] = submission.userId
+                it[challengeId] = submission.challengeId
+                it[testName] = submission.testName
+                it[testResult] = submission.testResult
+                it[numberOfSubmissions] = submission.numberOfSubmissions
+                it[temporalComplexity] = submission.temporalComplexity
+                it[spatialComplexity] = submission.spatialComplexity
+                it[problemUnderstanding] = submission.problemUnderstanding
+                it[resolutionStrategy] = submission.resolutionStrategy
+                it[confidenceLevel] = submission.confidenceLevel
+                it[learnings] = submission.learnings
+                it[startTime] = submission.startTime
+                it[endTime] = submission.endTime
             }
         }
 
-        suspend fun update(id: Int, submission: ExposedSubmission) {
-            dbQuery {
-                Submissions.update({ Submissions.id eq id }) {
-                    it[userId] = submission.userId
-                    it[challengeId] = submission.challengeId
-                    it[testName] = submission.testName
-                    it[testResult] = submission.testResult
-                    it[numberOfSubmissions] = submission.numberOfSubmissions
-                    it[temporalComplexity] = submission.temporalComplexity
-                    it[spatialComplexity] = submission.spatialComplexity
-                    it[problemUnderstanding] = submission.problemUnderstanding
-                    it[resolutionStrategy] = submission.resolutionStrategy
-                    it[confidenceLevel] = submission.confidenceLevel
-                    it[learnings] = submission.learnings
-                    it[startTime] = submission.startTime
-                    it[endTime] = submission.endTime
-                }
-            }
+    }
 
-            suspend fun delete(id: Int) {
-                dbQuery {
-                    Submissions.deleteWhere { Submissions.id.eq(id) }
-                }
-            }
+    suspend fun delete(id: Int) {
+        dbQuery {
+            Submissions.deleteWhere { Submissions.id.eq(id) }
+        }
+    }
+
+    suspend fun clear() {
+        dbQuery {
+            Submissions.deleteAll()
+        }
     }
 }

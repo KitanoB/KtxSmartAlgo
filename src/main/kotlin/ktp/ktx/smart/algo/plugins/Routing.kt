@@ -1,15 +1,18 @@
 package ktp.ktx.smart.algo.plugins
 
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.call
 import io.ktor.server.request.receive
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.routing.routing
 import kotlinx.serialization.json.Json
-import ktp.ktx.smart.algo.data.DatabaseFactory
+import ktp.ktx.smart.algo.data.database.DatabaseFactory
 import ktp.ktx.smart.algo.data.schema.ExposedUser
 import ktp.ktx.smart.algo.data.schema.UserService
-import org.jetbrains.exposed.sql.Database
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -25,11 +28,11 @@ fun Application.configureRouting() {
         post("/submit") {
 
             // receive json and convert to Submission object
-           /* val algo = call.receive<Submi>()
+            /* val algo = call.receive<Submi>()
 
-            val jsonStr = Json.encodeToString(AlgoTest.serializer(), algo)
-            logger.info("============================================")
-            logger.info("Received POST /test with payload: $jsonStr")*/
+             val jsonStr = Json.encodeToString(AlgoTest.serializer(), algo)
+             logger.info("============================================")
+             logger.info("Received POST /test with payload: $jsonStr")*/
             call.respond(HttpStatusCode.OK, "OK RECEIVED")
         }
 
