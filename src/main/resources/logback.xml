@@ -17,7 +17,7 @@
     <!-- Set the default log level to INFO to reduce noise -->
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
-        <appender-ref ref="FILE" />
+        <appender-ref ref="FILE"/>
     </root>
 
     <!-- Lower the log level for verbose loggers -->
